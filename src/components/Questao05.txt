@@ -1,0 +1,80 @@
+Prop drilling é quando precisamos passar
+um dado por várias camadas na árvore de componente react para alcaçar um componente filho.
+
+Cada componente intermediário na hierarquia tem que 
+passar o prop para baixo, mesmo que ele não use o prop.
+
+Pode se fazer uma anologia a um telefone sem fio(so que sem ruidos), onde a informção de um ponto
+inicial tem que passar por cada ponto ate chegar no final.
+
+Quando a aplicação começar a ficar grande, mandar dados do ponto A para o ponto B usando props 
+em vários níveis pode complicar bastante.
+
+Para resolver esse problema no React podemos usar gerenciadores de estado, como ContextAPI, Zustand, Redux.
+
+um exemplo em codigo: 
+
+Componente Pai
+function Arvore() {
+  const mensagemParaPrimeiraFolha = "Olá, última folha!";
+
+  return (
+    <SegundaFolha mensagem={mensagemParaPrimeiraFolha} />
+  );
+}
+
+// Componente Filho (Segunda Folha)
+function SegundaFolha({ mensagem }) {
+  // A mensagem é passada diretamente através dos props, e nem usamos ela aqui.
+  return (
+    <PrimeiraFolha mensagem={mensagem} />
+  );
+}
+
+// Componente Neto (Primeira Folha)
+function PrimeiraFolha({ mensagem }) {
+  return <p>{mensagem}</p>; // Aqui utilizamos a mensagem
+}
+
+// Para renderizar o componente
+function App() {
+  return <Arvore />;
+}
+
+O Context API do React permite que você forneça dados a um componente 
+em qualquer parte da árvore de componentes, 
+sem precisar passar props por todos os níveis dela.
+
+Exemplo do código anterior usando contexto.
+
+import React, { createContext, useContext } from 'react';
+
+// Cria um Contexto
+const MensagemContext = createContext();
+
+function Arvore() {
+  const mensagemParaPrimeiraFolha = "Olá, última folha!";
+
+  return (
+    <MensagemContext.Provider value={mensagemParaPrimeiraFolha}>
+      <SegundaFolha />
+    </MensagemContext.Provider>
+  );
+}
+
+function SegundaFolha() {
+  // Nem precisa passar as props aqui
+  return <PrimeiraFolha />;
+}
+
+function PrimeiraFolha() {
+  const mensagem = useContext(MensagemContext); // Acessa a mensagem diretamente do contexto
+
+  return <p>{mensagem}</p>;
+}
+
+function App() {
+  return <Arvore />;
+}
+
+export default App;
